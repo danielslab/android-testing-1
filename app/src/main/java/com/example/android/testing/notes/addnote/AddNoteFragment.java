@@ -16,15 +16,6 @@
 
 package com.example.android.testing.notes.addnote;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
-import com.example.android.testing.notes.Injection;
-import com.example.android.testing.notes.R;
-import com.example.android.testing.notes.util.EspressoIdlingResource;
-
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
@@ -42,8 +33,16 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
+import com.example.android.testing.notes.Injection;
+import com.example.android.testing.notes.R;
+import com.example.android.testing.notes.databinding.FragmentAddnoteBinding;
+import com.example.android.testing.notes.util.EspressoIdlingResource;
 
 import java.io.IOException;
 
@@ -58,12 +57,7 @@ public class AddNoteFragment extends Fragment implements AddNoteContract.View {
     public static final int REQUEST_CODE_IMAGE_CAPTURE = 0x1001;
 
     private AddNoteContract.UserActionsListener mActionListener;
-
-    private TextView mTitle;
-
-    private TextView mDescription;
-
-    private ImageView mImageThumbnail;
+    private FragmentAddnoteBinding binding;
 
     public static AddNoteFragment newInstance() {
         return new AddNoteFragment();
@@ -85,8 +79,8 @@ public class AddNoteFragment extends Fragment implements AddNoteContract.View {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mActionListener.saveNote(mTitle.getText().toString(),
-                        mDescription.getText().toString());
+                mActionListener.saveNote(binding.addNoteTitle.getText().toString(),
+                        binding.addNoteDescription.getText().toString());
             }
         });
     }
@@ -95,14 +89,11 @@ public class AddNoteFragment extends Fragment implements AddNoteContract.View {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_addnote, container, false);
-        mTitle = (TextView) root.findViewById(R.id.add_note_title);
-        mDescription = (TextView) root.findViewById(R.id.add_note_description);
-        mImageThumbnail = (ImageView) root.findViewById(R.id.add_note_image_thumbnail);
+        binding = FragmentAddnoteBinding.inflate(inflater, container, false);
 
         setHasOptionsMenu(true);
         setRetainInstance(true);
-        return root;
+        return binding.getRoot();
     }
 
     @Override
@@ -130,7 +121,7 @@ public class AddNoteFragment extends Fragment implements AddNoteContract.View {
 
     @Override
     public void showEmptyNoteError() {
-        Snackbar.make(mTitle, getString(R.string.empty_note_message), Snackbar.LENGTH_LONG).show();
+        Snackbar.make(binding.addNoteTitle, getString(R.string.empty_note_message), Snackbar.LENGTH_LONG).show();
     }
 
     @Override
@@ -148,7 +139,7 @@ public class AddNoteFragment extends Fragment implements AddNoteContract.View {
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.parse(saveTo));
             startActivityForResult(takePictureIntent, REQUEST_CODE_IMAGE_CAPTURE);
         } else {
-            Snackbar.make(mTitle, getString(R.string.cannot_connect_to_camera_message),
+            Snackbar.make(binding.addNoteTitle, getString(R.string.cannot_connect_to_camera_message),
                     Snackbar.LENGTH_SHORT).show();
         }
     }
@@ -156,7 +147,7 @@ public class AddNoteFragment extends Fragment implements AddNoteContract.View {
     @Override
     public void showImagePreview(@NonNull String imageUrl) {
         checkState(!TextUtils.isEmpty(imageUrl), "imageUrl cannot be null or empty!");
-        mImageThumbnail.setVisibility(View.VISIBLE);
+        binding.addNoteImageThumbnail.setVisibility(View.VISIBLE);
 
         // The image is loaded in a different thread so in order to UI-test this, an idling resource
         // is used to specify when the app is idle.
@@ -167,7 +158,7 @@ public class AddNoteFragment extends Fragment implements AddNoteContract.View {
                 .load(imageUrl)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .centerCrop()
-                .into(new GlideDrawableImageViewTarget(mImageThumbnail) {
+                .into(new GlideDrawableImageViewTarget(binding.addNoteImageThumbnail) {
                     @Override
                     public void onResourceReady(GlideDrawable resource,
                                                 GlideAnimation<? super GlideDrawable> animation) {
@@ -179,7 +170,7 @@ public class AddNoteFragment extends Fragment implements AddNoteContract.View {
 
     @Override
     public void showImageError() {
-        Snackbar.make(mTitle, getString(R.string.cannot_connect_to_camera_message),
+        Snackbar.make(binding.addNoteTitle, getString(R.string.cannot_connect_to_camera_message),
                 Snackbar.LENGTH_SHORT).show();
     }
 

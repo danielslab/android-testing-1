@@ -16,6 +16,13 @@
 
 package com.example.android.testing.notes.notedetail;
 
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
@@ -23,16 +30,8 @@ import com.bumptech.glide.request.animation.GlideAnimation;
 import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.example.android.testing.notes.Injection;
 import com.example.android.testing.notes.R;
+import com.example.android.testing.notes.databinding.FragmentDetailBinding;
 import com.example.android.testing.notes.util.EspressoIdlingResource;
-
-import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 /**
  * Main UI for the note detail screen.
@@ -43,11 +42,7 @@ public class NoteDetailFragment extends Fragment implements NoteDetailContract.V
 
     private NoteDetailContract.UserActionsListener mActionsListener;
 
-    private TextView mDetailTitle;
-
-    private TextView mDetailDescription;
-
-    private ImageView mDetailImage;
+    private FragmentDetailBinding binding;
 
     public static NoteDetailFragment newInstance(String noteId) {
         Bundle arguments = new Bundle();
@@ -68,11 +63,8 @@ public class NoteDetailFragment extends Fragment implements NoteDetailContract.V
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_detail, container, false);
-        mDetailTitle = (TextView) root.findViewById(R.id.note_detail_title);
-        mDetailDescription = (TextView) root.findViewById(R.id.note_detail_description);
-        mDetailImage = (ImageView) root.findViewById(R.id.note_detail_image);
-        return root;
+        binding = FragmentDetailBinding.inflate(inflater, container, false);
+        return binding.getRoot();
     }
 
     @Override
@@ -85,31 +77,31 @@ public class NoteDetailFragment extends Fragment implements NoteDetailContract.V
     @Override
     public void setProgressIndicator(boolean active) {
         if (active) {
-            mDetailTitle.setText("");
-            mDetailDescription.setText(getString(R.string.loading));
+            binding.noteDetailTitle.setText("");
+            binding.noteDetailDescription.setText(getString(R.string.loading));
         }
     }
 
     @Override
     public void hideDescription() {
-        mDetailDescription.setVisibility(View.GONE);
+        binding.noteDetailDescription.setVisibility(View.GONE);
     }
 
     @Override
     public void hideTitle() {
-        mDetailTitle.setVisibility(View.GONE);
+        binding.noteDetailTitle.setVisibility(View.GONE);
     }
 
     @Override
     public void showDescription(String description) {
-        mDetailDescription.setVisibility(View.VISIBLE);
-        mDetailDescription.setText(description);
+        binding.noteDetailDescription.setVisibility(View.VISIBLE);
+        binding.noteDetailDescription.setText(description);
     }
 
     @Override
     public void showTitle(String title) {
-        mDetailTitle.setVisibility(View.VISIBLE);
-        mDetailTitle.setText(title);
+        binding.noteDetailTitle.setVisibility(View.VISIBLE);
+        binding.noteDetailTitle.setText(title);
     }
 
     @Override
@@ -118,14 +110,14 @@ public class NoteDetailFragment extends Fragment implements NoteDetailContract.V
         // is used to specify when the app is idle.
         EspressoIdlingResource.increment(); // App is busy until further notice.
 
-        mDetailImage.setVisibility(View.VISIBLE);
+        binding.noteDetailImage.setVisibility(View.VISIBLE);
 
         // This app uses Glide for image loading
         Glide.with(this)
                 .load(imageUrl)
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .centerCrop()
-                .into(new GlideDrawableImageViewTarget(mDetailImage) {
+                .into(new GlideDrawableImageViewTarget(binding.noteDetailImage) {
                     @Override
                     public void onResourceReady(GlideDrawable resource,
                                                 GlideAnimation<? super GlideDrawable> animation) {
@@ -137,13 +129,13 @@ public class NoteDetailFragment extends Fragment implements NoteDetailContract.V
 
     @Override
     public void hideImage() {
-        mDetailImage.setImageDrawable(null);
-        mDetailImage.setVisibility(View.GONE);
+        binding.noteDetailImage.setImageDrawable(null);
+        binding.noteDetailImage.setVisibility(View.GONE);
     }
 
     @Override
     public void showMissingNote() {
-        mDetailTitle.setText("");
-        mDetailDescription.setText(getString(R.string.no_data));
+        binding.noteDetailTitle.setText("");
+        binding.noteDetailDescription.setText(getString(R.string.no_data));
     }
 }
