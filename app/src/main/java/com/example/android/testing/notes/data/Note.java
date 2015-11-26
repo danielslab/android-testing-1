@@ -16,16 +16,18 @@
 
 package com.example.android.testing.notes.data;
 
-import com.google.common.base.Objects;
-
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
+
+import com.google.common.base.Objects;
 
 import java.util.UUID;
 
 /**
  * Immutable model class for a Note.
  */
-public final class Note {
+public final class Note implements Parcelable {
 
     private final String mId;
     @Nullable
@@ -45,6 +47,38 @@ public final class Note {
         mDescription = description;
         mImageUrl = imageUrl;
     }
+
+    protected Note(Parcel in) {
+        mId = in.readString();
+        mTitle = in.readString();
+        mDescription = in.readString();
+        mImageUrl = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(mId);
+        dest.writeString(mTitle);
+        dest.writeString(mDescription);
+        dest.writeString(mImageUrl);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<Note> CREATOR = new Creator<Note>() {
+        @Override
+        public Note createFromParcel(Parcel in) {
+            return new Note(in);
+        }
+
+        @Override
+        public Note[] newArray(int size) {
+            return new Note[size];
+        }
+    };
 
     public String getId() {
         return mId;

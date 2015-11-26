@@ -32,7 +32,7 @@ public class NotesServiceApiImpl implements NotesServiceApi {
             NotesServiceApiEndpoint.loadPersistedNotes();
 
     @Override
-    public void getAllNotes(final NotesServiceCallback callback) {
+    public void getAllNotes(final NotesServiceCallback<List<Note>> callback) {
         // Simulate network by delaying the execution.
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
@@ -45,10 +45,15 @@ public class NotesServiceApiImpl implements NotesServiceApi {
     }
 
     @Override
-    public void getNote(final String noteId, final NotesServiceCallback callback) {
-        //TODO: Add network latency here too.
-        Note note = NOTES_SERVICE_DATA.get(noteId);
-        callback.onLoaded(note);
+    public void getNote(final String noteId, final NotesServiceCallback<Note> callback) {
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                Note note = NOTES_SERVICE_DATA.get(noteId);
+                callback.onLoaded(note);
+            }
+        }, SERVICE_LATENCY_IN_MILLIS);
     }
 
     @Override

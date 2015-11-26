@@ -16,22 +16,32 @@
 
 package com.example.android.testing.notes.notedetail;
 
+import com.example.android.testing.notes.R;
 import com.example.android.testing.notes.data.Note;
 import com.example.android.testing.notes.data.NotesRepository;
+import com.example.android.testing.notes.util.StringTranslator;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.runners.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 /**
- * Unit tests for the implementation of {@link NoteDetailPresenter}
+ * Unit tests for the implementation of {@link NoteDetailViewModel}
  */
+@RunWith(MockitoJUnitRunner.class)
 public class NotesDetailPresenterTest {
 
     public static final String INVALID_ID = "INVALID_ID";
@@ -39,12 +49,13 @@ public class NotesDetailPresenterTest {
     public static final String TITLE_TEST = "title";
 
     public static final String DESCRIPTION_TEST = "description";
+    public static final String STRING = "string-";
 
     @Mock
     private NotesRepository mNotesRepository;
 
     @Mock
-    private NoteDetailContract.View mNoteDetailView;
+    private StringTranslator stringTranslator;
 
     /**
      * {@link ArgumentCaptor} is a powerful Mockito API to capture argument values and use them to
@@ -53,16 +64,16 @@ public class NotesDetailPresenterTest {
     @Captor
     private ArgumentCaptor<NotesRepository.GetNoteCallback> mGetNoteCallbackCaptor;
 
-    private NoteDetailPresenter mNotesDetailsPresenter;
+    @InjectMocks
+    private NoteDetailViewModel viewModel;
 
     @Before
-    public void setupNotesPresenter() {
-        // Mockito has a very convenient way to inject mocks by using the @Mock annotation. To
-        // inject the mocks in the test the initMocks method needs to be called.
-        MockitoAnnotations.initMocks(this);
-
-        // Get a reference to the class under test
-        mNotesDetailsPresenter = new NoteDetailPresenter(mNotesRepository, mNoteDetailView);
+    public void setUp() throws Exception {
+        when(stringTranslator.getString(anyInt())).thenAnswer(new Answer<String>() {
+            @Override public String answer(InvocationOnMock invocation) throws Throwable {
+                return STRING + invocation.getArguments()[0];
+            }
+        });
     }
 
     @Test
@@ -71,36 +82,34 @@ public class NotesDetailPresenterTest {
         Note note = new Note(TITLE_TEST, DESCRIPTION_TEST);
 
         // When notes presenter is asked to open a note
-        mNotesDetailsPresenter.openNote(note.getId());
+        NoteDetailModel model = viewModel.initAndResume(note.getId());
 
         // Then note is loaded from model, callback is captured and progress indicator is shown
         verify(mNotesRepository).getNote(eq(note.getId()), mGetNoteCallbackCaptor.capture());
-        verify(mNoteDetailView).setProgressIndicator(true);
+        assertThat(model.getDescription().get()).isEqualTo(STRING + R.string.loading);
 
         // When note is finally loaded
         mGetNoteCallbackCaptor.getValue().onNoteLoaded(note); // Trigger callback
 
         // Then progress indicator is hidden and title and description are shown in UI
-        verify(mNoteDetailView).setProgressIndicator(false);
-        verify(mNoteDetailView).showTitle(TITLE_TEST);
-        verify(mNoteDetailView).showDescription(DESCRIPTION_TEST);
+        assertThat(model.getTitle().get()).isEqualTo(TITLE_TEST);
+        assertThat(model.getDescription().get()).isEqualTo(DESCRIPTION_TEST);
     }
 
     @Test
     public void getUnknownNoteFromRepositoryAndLoadIntoView() {
         // When loading of a note is requested with an invalid note ID.
-        mNotesDetailsPresenter.openNote(INVALID_ID);
+        NoteDetailModel model = viewModel.initAndResume(INVALID_ID);
 
         // Then note with invalid id is attempted to load from model, callback is captured and
         // progress indicator is shown.
-        verify(mNoteDetailView).setProgressIndicator(true);
+        assertThat(model.getDescription().get()).isEqualTo(STRING + R.string.loading);
         verify(mNotesRepository).getNote(eq(INVALID_ID), mGetNoteCallbackCaptor.capture());
 
         // When note is finally loaded
         mGetNoteCallbackCaptor.getValue().onNoteLoaded(null); // Trigger callback
 
         // Then progress indicator is hidden and missing note UI is shown
-        verify(mNoteDetailView).setProgressIndicator(false);
-        verify(mNoteDetailView).showMissingNote();
+        assertThat(model.getDescription().get()).isEqualTo("string-" + R.string.no_data);
     }
 }

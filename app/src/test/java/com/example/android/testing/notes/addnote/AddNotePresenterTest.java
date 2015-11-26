@@ -20,10 +20,11 @@ import com.example.android.testing.notes.data.Note;
 import com.example.android.testing.notes.data.NotesRepository;
 import com.example.android.testing.notes.util.ImageFile;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 
@@ -36,6 +37,7 @@ import static org.mockito.Mockito.when;
 /**
  * Unit tests for the implementation of {@link AddNotePresenter}.
  */
+@RunWith(MockitoJUnitRunner.class)
 public class AddNotePresenterTest {
 
     @Mock
@@ -47,17 +49,8 @@ public class AddNotePresenterTest {
     @Mock
     private AddNoteContract.View mAddNoteView;
 
+    @InjectMocks
     private AddNotePresenter mAddNotesPresenter;
-
-    @Before
-    public void setupAddNotePresenter() {
-        // Mockito has a very convenient way to inject mocks by using the @Mock annotation. To
-        // inject the mocks in the test the initMocks method needs to be called.
-        MockitoAnnotations.initMocks(this);
-
-        // Get a reference to the class under test
-        mAddNotesPresenter = new AddNotePresenter(mNotesRepository, mAddNoteView, mImageFile);
-    }
 
     @Test
     public void saveNoteToRepository_showsSuccessMessageUi() {

@@ -18,124 +18,38 @@ package com.example.android.testing.notes.notedetail;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.example.android.testing.notes.Injection;
-import com.example.android.testing.notes.R;
 import com.example.android.testing.notes.databinding.FragmentDetailBinding;
-import com.example.android.testing.notes.util.EspressoIdlingResource;
+import com.example.android.testing.notes.util.StringTranslator;
+
+import it.cosenonjaviste.mv2m.ArgumentManager;
+import it.cosenonjaviste.mv2m.ViewModelFragment;
 
 /**
  * Main UI for the note detail screen.
  */
-public class NoteDetailFragment extends Fragment implements NoteDetailContract.View {
-
-    public static final String ARGUMENT_NOTE_ID = "NOTE_ID";
-
-    private NoteDetailContract.UserActionsListener mActionsListener;
-
-    private FragmentDetailBinding binding;
+public class NoteDetailFragment extends ViewModelFragment<NoteDetailViewModel> {
 
     public static NoteDetailFragment newInstance(String noteId) {
-        Bundle arguments = new Bundle();
-        arguments.putString(ARGUMENT_NOTE_ID, noteId);
+        Bundle arguments = ArgumentManager.writeArgument(new Bundle(), noteId);
         NoteDetailFragment fragment = new NoteDetailFragment();
         fragment.setArguments(arguments);
         return fragment;
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        mActionsListener = new NoteDetailPresenter(Injection.provideNotesRepository(),
-                this);
+    @Override public NoteDetailViewModel createViewModel() {
+        return new NoteDetailViewModel(Injection.provideNotesRepository(), new StringTranslator(getActivity().getApplication()));
     }
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        binding = FragmentDetailBinding.inflate(inflater, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        FragmentDetailBinding binding = FragmentDetailBinding.inflate(inflater, container, false);
+        binding.setViewModel(viewModel);
         return binding.getRoot();
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        String noteId = getArguments().getString(ARGUMENT_NOTE_ID);
-        mActionsListener.openNote(noteId);
-    }
-
-    @Override
-    public void setProgressIndicator(boolean active) {
-        if (active) {
-            binding.noteDetailTitle.setText("");
-            binding.noteDetailDescription.setText(getString(R.string.loading));
-        }
-    }
-
-    @Override
-    public void hideDescription() {
-        binding.noteDetailDescription.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void hideTitle() {
-        binding.noteDetailTitle.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void showDescription(String description) {
-        binding.noteDetailDescription.setVisibility(View.VISIBLE);
-        binding.noteDetailDescription.setText(description);
-    }
-
-    @Override
-    public void showTitle(String title) {
-        binding.noteDetailTitle.setVisibility(View.VISIBLE);
-        binding.noteDetailTitle.setText(title);
-    }
-
-    @Override
-    public void showImage(String imageUrl) {
-        // The image is loaded in a different thread so in order to UI-test this, an idling resource
-        // is used to specify when the app is idle.
-        EspressoIdlingResource.increment(); // App is busy until further notice.
-
-        binding.noteDetailImage.setVisibility(View.VISIBLE);
-
-        // This app uses Glide for image loading
-        Glide.with(this)
-                .load(imageUrl)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .centerCrop()
-                .into(new GlideDrawableImageViewTarget(binding.noteDetailImage) {
-                    @Override
-                    public void onResourceReady(GlideDrawable resource,
-                                                GlideAnimation<? super GlideDrawable> animation) {
-                        super.onResourceReady(resource, animation);
-                        EspressoIdlingResource.decrement(); // App is idle.
-                    }
-                });
-    }
-
-    @Override
-    public void hideImage() {
-        binding.noteDetailImage.setImageDrawable(null);
-        binding.noteDetailImage.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void showMissingNote() {
-        binding.noteDetailTitle.setText("");
-        binding.noteDetailDescription.setText(getString(R.string.no_data));
     }
 }

@@ -13,10 +13,12 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools">
     <data>
-        <variable name="presenter"
-                  type="com.example.android.testing.notes.notedetail.NoteDetailPresenter"/>
+        <variable name="viewModel"
+                  type="com.example.android.testing.notes.notedetail.NoteDetailViewModel"/>
     </data>
     <LinearLayout
         android:layout_width="match_parent"
@@ -31,19 +33,24 @@
             android:id="@+id/note_detail_image"
             android:layout_width="128dp"
             android:layout_height="128dp"
+            app:imageUrl="@{viewModel.model.imageUrl}"
             android:visibility="invisible"/>
 
         <TextView
             android:id="@+id/note_detail_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:text="@{viewModel.model.title}"
+            app:visibleOrGone="@{viewModel.model.title != null}"
             android:textAppearance="?android:attr/textAppearanceLarge"/>
 
         <TextView
             android:id="@+id/note_detail_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Medium Text"
+            tools:text="Medium Text"
+            android:text="@{viewModel.model.description}"
+            app:visibleOrGone="@{viewModel.model.description != null}"
             android:textAppearance="?android:attr/textAppearanceMedium"/>
 
     </LinearLayout>
