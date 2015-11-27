@@ -16,9 +16,13 @@
 
 package com.example.android.testing.notes.addnote;
 
+import android.app.Activity;
+
+import com.example.android.testing.notes.R;
 import com.example.android.testing.notes.data.Note;
 import com.example.android.testing.notes.data.NotesRepository;
 import com.example.android.testing.notes.util.ImageFile;
+import com.example.android.testing.notes.util.SnackbarMessageManager;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -31,6 +35,7 @@ import java.io.IOException;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.contains;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -48,6 +53,9 @@ public class AddNotePresenterTest {
 
     @Mock
     private AddNoteContract.View mAddNoteView;
+
+    @Mock
+    private SnackbarMessageManager messageManager;
 
     @InjectMocks
     private AddNotePresenter mAddNotesPresenter;
@@ -68,7 +76,7 @@ public class AddNotePresenterTest {
         mAddNotesPresenter.saveNote("", "");
 
         // Then an empty not error is shown in the UI
-        verify(mAddNoteView).showEmptyNoteError();
+        verify(messageManager).showMessage(any(Activity.class), eq(R.string.empty_note_message));
     }
 
     @Test
@@ -105,7 +113,7 @@ public class AddNotePresenterTest {
         mAddNotesPresenter.imageAvailable();
 
         // Then an error is shown in the UI and the image file is deleted
-        verify(mAddNoteView).showImageError();
+        verify(messageManager).showMessage(any(Activity.class), eq(R.string.cannot_connect_to_camera_message));
         verify(mImageFile).delete();
     }
 
@@ -115,7 +123,7 @@ public class AddNotePresenterTest {
         mAddNotesPresenter.imageCaptureFailed();
 
         // Then an error is shown in the UI and the image file is deleted
-        verify(mAddNoteView).showImageError();
+        verify(messageManager).showMessage(any(Activity.class), eq(R.string.cannot_connect_to_camera_message));
         verify(mImageFile).delete();
     }
 

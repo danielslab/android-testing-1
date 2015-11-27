@@ -16,11 +16,14 @@
 
 package com.example.android.testing.notes.addnote;
 
+import android.app.Activity;
+import android.support.annotation.NonNull;
+
+import com.example.android.testing.notes.R;
 import com.example.android.testing.notes.data.Note;
 import com.example.android.testing.notes.data.NotesRepository;
 import com.example.android.testing.notes.util.ImageFile;
-
-import android.support.annotation.NonNull;
+import com.example.android.testing.notes.util.SnackbarMessageManager;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -40,12 +43,18 @@ public class AddNotePresenter implements AddNoteContract.UserActionsListener {
     private final AddNoteContract.View mAddNoteView;
     @NonNull
     private final ImageFile mImageFile;
+    @NonNull
+    private final SnackbarMessageManager mSnackbarMessageManager;
+
+    private Activity activity;
 
     public AddNotePresenter(@NonNull NotesRepository notesRepository,
                             @NonNull AddNoteContract.View addNoteView,
-                            @NonNull ImageFile imageFile) {
+                            @NonNull ImageFile imageFile,
+                            @NonNull SnackbarMessageManager snackbarMessageManager) {
         mNotesRepository = checkNotNull(notesRepository);
         mAddNoteView = checkNotNull(addNoteView);
+        mSnackbarMessageManager = checkNotNull(snackbarMessageManager);
         addNoteView.setUserActionListener(this);
         mImageFile = imageFile;
     }
@@ -58,7 +67,7 @@ public class AddNotePresenter implements AddNoteContract.UserActionsListener {
         }
         Note newNote = new Note(title, description, imageUrl);
         if (newNote.isEmpty()) {
-            mAddNoteView.showEmptyNoteError();
+            mSnackbarMessageManager.showMessage(activity, R.string.empty_note_message);
         } else {
             mNotesRepository.saveNote(newNote);
             mAddNoteView.showNotesList();
@@ -89,7 +98,7 @@ public class AddNotePresenter implements AddNoteContract.UserActionsListener {
 
     private void captureFailed() {
         mImageFile.delete();
-        mAddNoteView.showImageError();
+        mSnackbarMessageManager.showMessage(activity, R.string.cannot_connect_to_camera_message);
     }
 
 }

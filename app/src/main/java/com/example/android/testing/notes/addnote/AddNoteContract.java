@@ -27,15 +27,11 @@ public interface AddNoteContract {
 
     interface View {
 
-        void showEmptyNoteError();
-
         void showNotesList();
 
         void openCamera(String saveTo);
 
         void showImagePreview(@NonNull String uri);
-
-        void showImageError();
 
         void setUserActionListener(UserActionsListener listener);
     }

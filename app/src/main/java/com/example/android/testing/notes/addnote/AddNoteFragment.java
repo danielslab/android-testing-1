@@ -43,6 +43,7 @@ import com.example.android.testing.notes.Injection;
 import com.example.android.testing.notes.R;
 import com.example.android.testing.notes.databinding.FragmentAddnoteBinding;
 import com.example.android.testing.notes.util.EspressoIdlingResource;
+import com.example.android.testing.notes.util.SnackbarMessageManager;
 
 import java.io.IOException;
 
@@ -71,7 +72,7 @@ public class AddNoteFragment extends Fragment implements AddNoteContract.View {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mActionListener = new AddNotePresenter(Injection.provideNotesRepository(), this,
-                Injection.provideImageFile());
+                Injection.provideImageFile(), new SnackbarMessageManager());
 
         FloatingActionButton fab =
                 (FloatingActionButton) getActivity().findViewById(R.id.fab_add_notes);
@@ -120,11 +121,6 @@ public class AddNoteFragment extends Fragment implements AddNoteContract.View {
     }
 
     @Override
-    public void showEmptyNoteError() {
-        Snackbar.make(binding.addNoteTitle, getString(R.string.empty_note_message), Snackbar.LENGTH_LONG).show();
-    }
-
-    @Override
     public void showNotesList() {
         getActivity().setResult(Activity.RESULT_OK);
         getActivity().finish();
@@ -166,12 +162,6 @@ public class AddNoteFragment extends Fragment implements AddNoteContract.View {
                         EspressoIdlingResource.decrement(); // Set app as idle.
                     }
                 });
-    }
-
-    @Override
-    public void showImageError() {
-        Snackbar.make(binding.addNoteTitle, getString(R.string.cannot_connect_to_camera_message),
-                Snackbar.LENGTH_SHORT).show();
     }
 
     @Override
