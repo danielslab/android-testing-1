@@ -22,6 +22,7 @@ import com.example.android.testing.notes.R;
 import com.example.android.testing.notes.data.Note;
 import com.example.android.testing.notes.data.NotesRepository;
 import com.example.android.testing.notes.util.ImageFile;
+import com.example.android.testing.notes.util.Navigator;
 import com.example.android.testing.notes.util.SnackbarMessageManager;
 
 import org.junit.Test;
@@ -57,6 +58,9 @@ public class AddNotePresenterTest {
     @Mock
     private SnackbarMessageManager messageManager;
 
+    @Mock
+    private Navigator navigator;
+
     @InjectMocks
     private AddNotePresenter mAddNotesPresenter;
 
@@ -67,7 +71,7 @@ public class AddNotePresenterTest {
 
         // Then a note is,
         verify(mNotesRepository).saveNote(any(Note.class)); // saved to the model
-        verify(mAddNoteView).showNotesList(); // shown in the UI
+        verify(navigator).finish(any(Activity.class), eq(Activity.RESULT_OK)); // shown in the UI
     }
 
     @Test
@@ -81,13 +85,15 @@ public class AddNotePresenterTest {
 
     @Test
     public void takePicture_CreatesFileAndOpensCamera() throws IOException {
+        when(navigator.isCameraInstalled(any(Activity.class))).thenReturn(true);
+
         // When the presenter is asked to take an image
         mAddNotesPresenter.takePicture();
 
         // Then an image file is created snd camera is opened
         verify(mImageFile).create(anyString(), anyString());
         verify(mImageFile).getPath();
-        verify(mAddNoteView).openCamera(anyString());
+        verify(navigator).openCamera(anyString(), any(Activity.class), eq(AddNotePresenter.REQUEST_CODE_IMAGE_CAPTURE));
     }
 
     @Test

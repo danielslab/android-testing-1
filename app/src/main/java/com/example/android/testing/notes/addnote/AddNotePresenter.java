@@ -23,6 +23,7 @@ import com.example.android.testing.notes.R;
 import com.example.android.testing.notes.data.Note;
 import com.example.android.testing.notes.data.NotesRepository;
 import com.example.android.testing.notes.util.ImageFile;
+import com.example.android.testing.notes.util.Navigator;
 import com.example.android.testing.notes.util.SnackbarMessageManager;
 
 import java.io.IOException;
@@ -37,6 +38,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class AddNotePresenter implements AddNoteContract.UserActionsListener {
 
+    public static final int REQUEST_CODE_IMAGE_CAPTURE = 0x1001;
+
     @NonNull
     private final NotesRepository mNotesRepository;
     @NonNull
@@ -45,13 +48,17 @@ public class AddNotePresenter implements AddNoteContract.UserActionsListener {
     private final ImageFile mImageFile;
     @NonNull
     private final SnackbarMessageManager mSnackbarMessageManager;
+    @NonNull
+    private final Navigator mNavigator;
 
     private Activity activity;
 
     public AddNotePresenter(@NonNull NotesRepository notesRepository,
                             @NonNull AddNoteContract.View addNoteView,
                             @NonNull ImageFile imageFile,
-                            @NonNull SnackbarMessageManager snackbarMessageManager) {
+                            @NonNull SnackbarMessageManager snackbarMessageManager,
+                            @NonNull Navigator navigator) {
+        this.mNavigator = checkNotNull(navigator);
         mNotesRepository = checkNotNull(notesRepository);
         mAddNoteView = checkNotNull(addNoteView);
         mSnackbarMessageManager = checkNotNull(snackbarMessageManager);
@@ -70,7 +77,7 @@ public class AddNotePresenter implements AddNoteContract.UserActionsListener {
             mSnackbarMessageManager.showMessage(activity, R.string.empty_note_message);
         } else {
             mNotesRepository.saveNote(newNote);
-            mAddNoteView.showNotesList();
+            mNavigator.finish(activity, Activity.RESULT_OK);
         }
     }
 
@@ -79,7 +86,12 @@ public class AddNotePresenter implements AddNoteContract.UserActionsListener {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         mImageFile.create(imageFileName, ".jpg");
-        mAddNoteView.openCamera(mImageFile.getPath());
+
+        if (mNavigator.isCameraInstalled(activity)) {
+            mNavigator.openCamera(mImageFile.getPath(), activity, REQUEST_CODE_IMAGE_CAPTURE);
+        } else {
+            mSnackbarMessageManager.showMessage(activity, R.string.cannot_connect_to_camera_message);
+        }
     }
 
     @Override

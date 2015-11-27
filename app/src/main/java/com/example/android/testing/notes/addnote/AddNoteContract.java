@@ -27,10 +27,6 @@ public interface AddNoteContract {
 
     interface View {
 
-        void showNotesList();
-
-        void openCamera(String saveTo);
-
         void showImagePreview(@NonNull String uri);
 
         void setUserActionListener(UserActionsListener listener);

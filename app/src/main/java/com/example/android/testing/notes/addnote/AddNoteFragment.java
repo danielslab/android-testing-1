@@ -18,9 +18,7 @@ package com.example.android.testing.notes.addnote;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -43,6 +41,7 @@ import com.example.android.testing.notes.Injection;
 import com.example.android.testing.notes.R;
 import com.example.android.testing.notes.databinding.FragmentAddnoteBinding;
 import com.example.android.testing.notes.util.EspressoIdlingResource;
+import com.example.android.testing.notes.util.Navigator;
 import com.example.android.testing.notes.util.SnackbarMessageManager;
 
 import java.io.IOException;
@@ -55,8 +54,6 @@ import static com.google.common.base.Preconditions.checkState;
  */
 public class AddNoteFragment extends Fragment implements AddNoteContract.View {
 
-    public static final int REQUEST_CODE_IMAGE_CAPTURE = 0x1001;
-
     private AddNoteContract.UserActionsListener mActionListener;
     private FragmentAddnoteBinding binding;
 
@@ -64,15 +61,11 @@ public class AddNoteFragment extends Fragment implements AddNoteContract.View {
         return new AddNoteFragment();
     }
 
-    public AddNoteFragment() {
-        // Required empty public constructor
-    }
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         mActionListener = new AddNotePresenter(Injection.provideNotesRepository(), this,
-                Injection.provideImageFile(), new SnackbarMessageManager());
+                Injection.provideImageFile(), new SnackbarMessageManager(), new Navigator());
 
         FloatingActionButton fab =
                 (FloatingActionButton) getActivity().findViewById(R.id.fab_add_notes);
@@ -121,26 +114,6 @@ public class AddNoteFragment extends Fragment implements AddNoteContract.View {
     }
 
     @Override
-    public void showNotesList() {
-        getActivity().setResult(Activity.RESULT_OK);
-        getActivity().finish();
-    }
-
-    @Override
-    public void openCamera(String saveTo) {
-        // Open the camera to take a picture.
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Check if there is a camera app installed to handle our Intent
-        if (takePictureIntent.resolveActivity(getContext().getPackageManager()) != null) {
-            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.parse(saveTo));
-            startActivityForResult(takePictureIntent, REQUEST_CODE_IMAGE_CAPTURE);
-        } else {
-            Snackbar.make(binding.addNoteTitle, getString(R.string.cannot_connect_to_camera_message),
-                    Snackbar.LENGTH_SHORT).show();
-        }
-    }
-
-    @Override
     public void showImagePreview(@NonNull String imageUrl) {
         checkState(!TextUtils.isEmpty(imageUrl), "imageUrl cannot be null or empty!");
         binding.addNoteImageThumbnail.setVisibility(View.VISIBLE);
@@ -172,7 +145,7 @@ public class AddNoteFragment extends Fragment implements AddNoteContract.View {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // If an image is received, display it on the ImageView.
-        if (REQUEST_CODE_IMAGE_CAPTURE == requestCode && Activity.RESULT_OK == resultCode) {
+        if (AddNotePresenter.REQUEST_CODE_IMAGE_CAPTURE == requestCode && Activity.RESULT_OK == resultCode) {
             mActionListener.imageAvailable();
         } else {
             mActionListener.imageCaptureFailed();
