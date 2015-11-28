@@ -19,12 +19,9 @@ package com.example.android.testing.notes.addnote;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.Fragment;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -32,40 +29,36 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.animation.GlideAnimation;
-import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.example.android.testing.notes.Injection;
 import com.example.android.testing.notes.R;
 import com.example.android.testing.notes.databinding.FragmentAddnoteBinding;
-import com.example.android.testing.notes.util.EspressoIdlingResource;
 import com.example.android.testing.notes.util.Navigator;
 import com.example.android.testing.notes.util.SnackbarMessageManager;
 
 import java.io.IOException;
 
-import static com.google.common.base.Preconditions.checkState;
+import it.cosenonjaviste.mv2m.ViewModelFragment;
 
 /**
  * Main UI for the add note screen. Users can enter a note title and description. Images can be
  * added to notes by clicking on the options menu.
  */
-public class AddNoteFragment extends Fragment implements AddNoteContract.View {
+public class AddNoteFragment extends ViewModelFragment<AddNoteViewModel> {
 
-    private AddNoteContract.UserActionsListener mActionListener;
     private FragmentAddnoteBinding binding;
 
     public static AddNoteFragment newInstance() {
         return new AddNoteFragment();
     }
 
+    @Override public AddNoteViewModel createViewModel() {
+        return new AddNoteViewModel(Injection.provideNotesRepository(),
+                Injection.provideImageFile(), new SnackbarMessageManager(), new Navigator(getActivity().getApplication()));
+    }
+
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        mActionListener = new AddNotePresenter(Injection.provideNotesRepository(), this,
-                Injection.provideImageFile(), new SnackbarMessageManager(), new Navigator());
 
         FloatingActionButton fab =
                 (FloatingActionButton) getActivity().findViewById(R.id.fab_add_notes);
@@ -73,7 +66,7 @@ public class AddNoteFragment extends Fragment implements AddNoteContract.View {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mActionListener.saveNote(binding.addNoteTitle.getText().toString(),
+                viewModel.saveNote(binding.addNoteTitle.getText().toString(),
                         binding.addNoteDescription.getText().toString());
             }
         });
@@ -84,9 +77,9 @@ public class AddNoteFragment extends Fragment implements AddNoteContract.View {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentAddnoteBinding.inflate(inflater, container, false);
+        binding.setViewModel(viewModel);
 
         setHasOptionsMenu(true);
-        setRetainInstance(true);
         return binding.getRoot();
     }
 
@@ -95,7 +88,7 @@ public class AddNoteFragment extends Fragment implements AddNoteContract.View {
         switch (item.getItemId()) {
             case R.id.take_picture:
                 try {
-                    mActionListener.takePicture();
+                    viewModel.takePicture();
                 } catch (IOException ioe) {
                     if (getView() != null) {
                         Snackbar.make(getView(), getString(R.string.take_picture_error),
@@ -114,41 +107,12 @@ public class AddNoteFragment extends Fragment implements AddNoteContract.View {
     }
 
     @Override
-    public void showImagePreview(@NonNull String imageUrl) {
-        checkState(!TextUtils.isEmpty(imageUrl), "imageUrl cannot be null or empty!");
-        binding.addNoteImageThumbnail.setVisibility(View.VISIBLE);
-
-        // The image is loaded in a different thread so in order to UI-test this, an idling resource
-        // is used to specify when the app is idle.
-        EspressoIdlingResource.increment(); // App is busy until further notice.
-
-        // This app uses Glide for image loading
-        Glide.with(this)
-                .load(imageUrl)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .centerCrop()
-                .into(new GlideDrawableImageViewTarget(binding.addNoteImageThumbnail) {
-                    @Override
-                    public void onResourceReady(GlideDrawable resource,
-                                                GlideAnimation<? super GlideDrawable> animation) {
-                        super.onResourceReady(resource, animation);
-                        EspressoIdlingResource.decrement(); // Set app as idle.
-                    }
-                });
-    }
-
-    @Override
-    public void setUserActionListener(AddNoteContract.UserActionsListener listener) {
-        mActionListener = listener;
-    }
-
-    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         // If an image is received, display it on the ImageView.
-        if (AddNotePresenter.REQUEST_CODE_IMAGE_CAPTURE == requestCode && Activity.RESULT_OK == resultCode) {
-            mActionListener.imageAvailable();
+        if (AddNoteViewModel.REQUEST_CODE_IMAGE_CAPTURE == requestCode && Activity.RESULT_OK == resultCode) {
+            viewModel.imageAvailable();
         } else {
-            mActionListener.imageCaptureFailed();
+            viewModel.imageCaptureFailed();
         }
     }
 }

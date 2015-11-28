@@ -33,18 +33,20 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 
+import it.cosenonjaviste.mv2m.Mv2mView;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.contains;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * Unit tests for the implementation of {@link AddNotePresenter}.
+ * Unit tests for the implementation of {@link AddNoteViewModel}.
  */
 @RunWith(MockitoJUnitRunner.class)
-public class AddNotePresenterTest {
+public class AddNoteViewModelTest {
 
     @Mock
     private NotesRepository mNotesRepository;
@@ -53,61 +55,60 @@ public class AddNotePresenterTest {
     private ImageFile mImageFile;
 
     @Mock
-    private AddNoteContract.View mAddNoteView;
-
-    @Mock
     private SnackbarMessageManager messageManager;
 
     @Mock
     private Navigator navigator;
 
     @InjectMocks
-    private AddNotePresenter mAddNotesPresenter;
+    private AddNoteViewModel viewModel;
 
     @Test
     public void saveNoteToRepository_showsSuccessMessageUi() {
         // When the presenter is asked to save a note
-        mAddNotesPresenter.saveNote("New Note Title", "Some Note Description");
+        viewModel.saveNote("New Note Title", "Some Note Description");
 
         // Then a note is,
         verify(mNotesRepository).saveNote(any(Note.class)); // saved to the model
-        verify(navigator).finish(any(Activity.class), eq(Activity.RESULT_OK)); // shown in the UI
+        verify(navigator).finish(any(Mv2mView.class), eq(Activity.RESULT_OK)); // shown in the UI
     }
 
     @Test
     public void saveNote_emptyNoteShowsErrorUi() {
         // When the presenter is asked to save an empty note
-        mAddNotesPresenter.saveNote("", "");
+        viewModel.saveNote("", "");
 
         // Then an empty not error is shown in the UI
-        verify(messageManager).showMessage(any(Activity.class), eq(R.string.empty_note_message));
+        verify(messageManager).showMessage(any(Mv2mView.class), eq(R.string.empty_note_message));
     }
 
     @Test
     public void takePicture_CreatesFileAndOpensCamera() throws IOException {
-        when(navigator.isCameraInstalled(any(Activity.class))).thenReturn(true);
+        when(navigator.isCameraInstalled(any(Mv2mView.class))).thenReturn(true);
 
         // When the presenter is asked to take an image
-        mAddNotesPresenter.takePicture();
+        viewModel.takePicture();
 
         // Then an image file is created snd camera is opened
         verify(mImageFile).create(anyString(), anyString());
         verify(mImageFile).getPath();
-        verify(navigator).openCamera(anyString(), any(Activity.class), eq(AddNotePresenter.REQUEST_CODE_IMAGE_CAPTURE));
+        verify(navigator).openCamera(anyString(), any(Mv2mView.class), eq(AddNoteViewModel.REQUEST_CODE_IMAGE_CAPTURE));
     }
 
     @Test
     public void imageAvailable_SavesImageAndUpdatesUiWithThumbnail() {
+        AddNoteModel model = viewModel.initAndResume();
+
         // Given an a stubbed image file
         String imageUrl = "path/to/file";
         when(mImageFile.exists()).thenReturn(true);
         when(mImageFile.getPath()).thenReturn(imageUrl);
 
         // When an image is made available to the presenter
-        mAddNotesPresenter.imageAvailable();
+        viewModel.imageAvailable();
 
         // Then the preview image of the stubbed image is shown in the UI
-        verify(mAddNoteView).showImagePreview(contains(imageUrl));
+        assertThat(model.getImageUrl().get()).isEqualTo(imageUrl);
     }
 
     @Test
@@ -116,20 +117,20 @@ public class AddNotePresenterTest {
         when(mImageFile.exists()).thenReturn(false);
 
         // When an image is made available to the presenter
-        mAddNotesPresenter.imageAvailable();
+        viewModel.imageAvailable();
 
         // Then an error is shown in the UI and the image file is deleted
-        verify(messageManager).showMessage(any(Activity.class), eq(R.string.cannot_connect_to_camera_message));
+        verify(messageManager).showMessage(any(Mv2mView.class), eq(R.string.cannot_connect_to_camera_message));
         verify(mImageFile).delete();
     }
 
     @Test
     public void noImageAvailable_ShowsErrorUi() {
         // When the presenter is notified that image capturing failed
-        mAddNotesPresenter.imageCaptureFailed();
+        viewModel.imageCaptureFailed();
 
         // Then an error is shown in the UI and the image file is deleted
-        verify(messageManager).showMessage(any(Activity.class), eq(R.string.cannot_connect_to_camera_message));
+        verify(messageManager).showMessage(any(Mv2mView.class), eq(R.string.cannot_connect_to_camera_message));
         verify(mImageFile).delete();
     }
 

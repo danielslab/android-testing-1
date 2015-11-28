@@ -30,20 +30,20 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import it.cosenonjaviste.mv2m.ViewModel;
+
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Listens to user actions from the UI ({@link AddNoteFragment}), retrieves the data and updates
  * the UI as required.
  */
-public class AddNotePresenter implements AddNoteContract.UserActionsListener {
+public class AddNoteViewModel extends ViewModel<Void, AddNoteModel> {
 
     public static final int REQUEST_CODE_IMAGE_CAPTURE = 0x1001;
 
     @NonNull
     private final NotesRepository mNotesRepository;
-    @NonNull
-    private final AddNoteContract.View mAddNoteView;
     @NonNull
     private final ImageFile mImageFile;
     @NonNull
@@ -51,22 +51,20 @@ public class AddNotePresenter implements AddNoteContract.UserActionsListener {
     @NonNull
     private final Navigator mNavigator;
 
-    private Activity activity;
-
-    public AddNotePresenter(@NonNull NotesRepository notesRepository,
-                            @NonNull AddNoteContract.View addNoteView,
+    public AddNoteViewModel(@NonNull NotesRepository notesRepository,
                             @NonNull ImageFile imageFile,
                             @NonNull SnackbarMessageManager snackbarMessageManager,
                             @NonNull Navigator navigator) {
         this.mNavigator = checkNotNull(navigator);
         mNotesRepository = checkNotNull(notesRepository);
-        mAddNoteView = checkNotNull(addNoteView);
         mSnackbarMessageManager = checkNotNull(snackbarMessageManager);
-        addNoteView.setUserActionListener(this);
         mImageFile = imageFile;
     }
 
-    @Override
+    @NonNull @Override protected AddNoteModel createModel() {
+        return new AddNoteModel();
+    }
+
     public void saveNote(String title, String description) {
         String imageUrl = null;
         if (mImageFile.exists()) {
@@ -74,43 +72,40 @@ public class AddNotePresenter implements AddNoteContract.UserActionsListener {
         }
         Note newNote = new Note(title, description, imageUrl);
         if (newNote.isEmpty()) {
-            mSnackbarMessageManager.showMessage(activity, R.string.empty_note_message);
+            mSnackbarMessageManager.showMessage(view, R.string.empty_note_message);
         } else {
             mNotesRepository.saveNote(newNote);
-            mNavigator.finish(activity, Activity.RESULT_OK);
+            mNavigator.finish(view, Activity.RESULT_OK);
         }
     }
 
-    @Override
     public void takePicture() throws IOException {
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         mImageFile.create(imageFileName, ".jpg");
 
-        if (mNavigator.isCameraInstalled(activity)) {
-            mNavigator.openCamera(mImageFile.getPath(), activity, REQUEST_CODE_IMAGE_CAPTURE);
+        if (mNavigator.isCameraInstalled(view)) {
+            mNavigator.openCamera(mImageFile.getPath(), view, REQUEST_CODE_IMAGE_CAPTURE);
         } else {
-            mSnackbarMessageManager.showMessage(activity, R.string.cannot_connect_to_camera_message);
+            mSnackbarMessageManager.showMessage(view, R.string.cannot_connect_to_camera_message);
         }
     }
 
-    @Override
     public void imageAvailable() {
         if (mImageFile.exists()) {
-            mAddNoteView.showImagePreview(mImageFile.getPath());
+            model.getImageUrl().set(mImageFile.getPath());
         } else {
             imageCaptureFailed();
         }
     }
 
-    @Override
     public void imageCaptureFailed() {
         captureFailed();
     }
 
     private void captureFailed() {
         mImageFile.delete();
-        mSnackbarMessageManager.showMessage(activity, R.string.cannot_connect_to_camera_message);
+        mSnackbarMessageManager.showMessage(view, R.string.cannot_connect_to_camera_message);
     }
 
 }
