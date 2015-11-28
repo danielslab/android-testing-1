@@ -3,39 +3,42 @@ package com.example.android.testing.notes.util;
 import android.databinding.BindingAdapter;
 import android.databinding.BindingConversion;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.example.android.testing.notes.R;
 
 public class DataBindingConverters {
 
-//    @BindingAdapter({"app:error"})
-//    public static void bindValidationError(TextInputLayout textInputLayout, int errorRes) {
-//        if (errorRes != 0) {
-//            textInputLayout.setError(textInputLayout.getResources().getString(errorRes));
-//        } else {
-//            textInputLayout.setError(null);
-//        }
-//    }
-//
-//    @BindingAdapter({"app:binding"})
-//    public static void bindEditText(EditText view, final ObservableString observableString) {
-//        if (view.getTag(R.id.binded) == null) {
-//            view.setTag(R.id.binded, true);
-//            view.addTextChangedListener(new TextWatcherAdapter() {
-//                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                    observableString.set(s.toString());
-//                }
-//            });
-//        }
-//        String newValue = observableString.get();
-//        if (!view.getText().toString().equals(newValue)) {
-//            view.setText(newValue);
-//        }
-//    }
+    @BindingAdapter({"app:binding"})
+    public static void bindEditText(EditText view, final ObservableString observableString) {
+        if (view.getTag(R.id.bound_observable) != observableString) {
+            view.setTag(R.id.bound_observable, observableString);
+            view.addTextChangedListener(new TextWatcher() {
+                @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                }
+
+                @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    observableString.set(s.toString());
+                }
+
+                @Override public void afterTextChanged(Editable s) {
+
+                }
+            });
+        }
+        String newValue = observableString.get();
+        if (!view.getText().toString().equals(newValue)) {
+            view.setText(newValue);
+        }
+    }
 
     @BindingAdapter({"app:onClick"})
     public static void bindOnClick(View view, final Runnable listener) {

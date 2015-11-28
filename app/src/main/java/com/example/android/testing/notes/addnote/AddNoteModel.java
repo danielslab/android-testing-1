@@ -7,22 +7,28 @@ import com.example.android.testing.notes.util.ObservableString;
 
 public class AddNoteModel implements Parcelable {
 
+    private ObservableString title;
+
+    private ObservableString description;
+
     private ObservableString imageUrl;
 
     public AddNoteModel() {
         imageUrl = new ObservableString();
+        title = new ObservableString();
+        description = new ObservableString();
     }
 
     protected AddNoteModel(Parcel in) {
+        title = in.readParcelable(ObservableString.class.getClassLoader());
+        description = in.readParcelable(ObservableString.class.getClassLoader());
         imageUrl = in.readParcelable(ObservableString.class.getClassLoader());
-    }
-
-    public ObservableString getImageUrl() {
-        return imageUrl;
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(title, flags);
+        dest.writeParcelable(description, flags);
         dest.writeParcelable(imageUrl, flags);
     }
 
@@ -42,4 +48,16 @@ public class AddNoteModel implements Parcelable {
             return new AddNoteModel[size];
         }
     };
+
+    public ObservableString getImageUrl() {
+        return imageUrl;
+    }
+
+    public ObservableString getTitle() {
+        return title;
+    }
+
+    public ObservableString getDescription() {
+        return description;
+    }
 }

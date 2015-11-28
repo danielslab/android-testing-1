@@ -65,8 +65,13 @@ public class AddNoteViewModelTest {
 
     @Test
     public void saveNoteToRepository_showsSuccessMessageUi() {
+        AddNoteModel model = viewModel.initAndResume();
+
+        model.getTitle().set("New Note Title");
+        model.getDescription().set("Some Note Description");
+
         // When the presenter is asked to save a note
-        viewModel.saveNote("New Note Title", "Some Note Description");
+        viewModel.saveNote();
 
         // Then a note is,
         verify(mNotesRepository).saveNote(any(Note.class)); // saved to the model
@@ -75,8 +80,10 @@ public class AddNoteViewModelTest {
 
     @Test
     public void saveNote_emptyNoteShowsErrorUi() {
+        viewModel.initAndResume();
+
         // When the presenter is asked to save an empty note
-        viewModel.saveNote("", "");
+        viewModel.saveNote();
 
         // Then an empty not error is shown in the UI
         verify(messageManager).showMessage(any(Mv2mView.class), eq(R.string.empty_note_message));

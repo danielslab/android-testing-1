@@ -66,12 +66,12 @@ public class AddNoteViewModel extends ViewModel<Void, AddNoteModel> {
         return new AddNoteModel();
     }
 
-    public void saveNote(String title, String description) {
+    public void saveNote() {
         String imageUrl = null;
         if (mImageFile.exists()) {
             imageUrl = mImageFile.getPath();
         }
-        Note newNote = new Note(title, description, imageUrl);
+        Note newNote = new Note(model.getTitle().get(), model.getDescription().get(), imageUrl);
         if (newNote.isEmpty()) {
             mSnackbarMessageManager.showMessage(view, R.string.empty_note_message);
         } else {

@@ -37,8 +37,6 @@ import it.cosenonjaviste.mv2m.ViewModelFragment;
  */
 public class AddNoteFragment extends ViewModelFragment<AddNoteViewModel> {
 
-    private FragmentAddnoteBinding binding;
-
     public static AddNoteFragment newInstance() {
         return new AddNoteFragment();
     }
@@ -58,17 +56,15 @@ public class AddNoteFragment extends ViewModelFragment<AddNoteViewModel> {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                viewModel.saveNote(binding.addNoteTitle.getText().toString(),
-                        binding.addNoteDescription.getText().toString());
+                viewModel.saveNote();
             }
         });
     }
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        binding = FragmentAddnoteBinding.inflate(inflater, container, false);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        FragmentAddnoteBinding binding = FragmentAddnoteBinding.inflate(inflater, container, false);
         binding.setViewModel(viewModel);
 
         return binding.getRoot();
