@@ -84,7 +84,7 @@ public class AddNoteViewModelTest {
 
     @Test
     public void takePicture_CreatesFileAndOpensCamera() throws IOException {
-        when(navigator.isCameraInstalled(any(Mv2mView.class))).thenReturn(true);
+        when(navigator.isCameraInstalled()).thenReturn(true);
 
         // When the presenter is asked to take an image
         viewModel.takePicture();

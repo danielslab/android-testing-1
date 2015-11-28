@@ -85,7 +85,7 @@ public class AddNoteViewModel extends ViewModel<Void, AddNoteModel> {
         String imageFileName = "JPEG_" + timeStamp + "_";
         mImageFile.create(imageFileName, ".jpg");
 
-        if (mNavigator.isCameraInstalled(view)) {
+        if (mNavigator.isCameraInstalled()) {
             mNavigator.openCamera(mImageFile.getPath(), view, REQUEST_CODE_IMAGE_CAPTURE);
         } else {
             mSnackbarMessageManager.showMessage(view, R.string.cannot_connect_to_camera_message);

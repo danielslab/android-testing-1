@@ -15,7 +15,7 @@ public class Navigator {
         this.application = application;
     }
 
-    public boolean isCameraInstalled(Mv2mView view) {
+    public boolean isCameraInstalled() {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         return takePictureIntent.resolveActivity(application.getPackageManager()) != null;
     }
