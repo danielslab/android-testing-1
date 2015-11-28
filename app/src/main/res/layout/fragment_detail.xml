@@ -33,8 +33,7 @@
             android:id="@+id/note_detail_image"
             android:layout_width="128dp"
             android:layout_height="128dp"
-            app:imageUrl="@{viewModel.model.imageUrl}"
-            android:visibility="invisible"/>
+            app:imageUrl="@{viewModel.model.imageUrl}"/>
 
         <TextView
             android:id="@+id/note_detail_title"

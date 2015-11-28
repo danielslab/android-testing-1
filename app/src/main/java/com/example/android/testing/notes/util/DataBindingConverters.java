@@ -53,6 +53,7 @@ public class DataBindingConverters {
                     .load(url)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .centerCrop()
+                    .dontAnimate()
                     .into(view);
         } else {
             view.setImageDrawable(null);
