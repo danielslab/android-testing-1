@@ -20,6 +20,7 @@ import com.example.android.testing.notes.data.Note;
 import com.example.android.testing.notes.data.NotesRepository;
 import com.example.android.testing.notes.data.NotesRepository.LoadNotesCallback;
 import com.example.android.testing.notes.util.Navigator;
+import com.example.android.testing.notes.util.SnackbarMessageManager;
 import com.google.common.collect.Lists;
 
 import org.junit.Test;
@@ -30,33 +31,31 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import it.cosenonjaviste.mv2m.Mv2mView;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 
 /**
- * Unit tests for the implementation of {@link NotesPresenter}
+ * Unit tests for the implementation of {@link NotesViewModel}
  */
 @RunWith(MockitoJUnitRunner.class)
-public class NotesPresenterTest {
+public class NotesViewModelTest {
 
     private static List<Note> NOTES = Lists.newArrayList(new Note("Title1", "Description1"),
             new Note("Title2", "Description2"));
-
-    private static List<Note> EMPTY_NOTES = new ArrayList<>(0);
 
     @Mock
     private NotesRepository mNotesRepository;
 
     @Mock
-    private NotesContract.View mNotesView;
+    private Navigator mNavigator;
 
     @Mock
-    private Navigator mNavigator;
+    private SnackbarMessageManager mMessageManager;
 
     /**
      * {@link ArgumentCaptor} is a powerful Mockito API to capture argument values and use them to
@@ -66,27 +65,27 @@ public class NotesPresenterTest {
     private ArgumentCaptor<LoadNotesCallback> mLoadNotesCallbackCaptor;
 
     @InjectMocks
-    private NotesPresenter mNotesPresenter;
+    private NotesViewModel viewModel;
 
     @Test
     public void loadNotesFromRepositoryAndLoadIntoView() {
         // Given an initialized NotesPresenter with initialized notes
         // When loading of Notes is requested
-        mNotesPresenter.loadNotes(true);
+        NotesModel model = viewModel.initAndResume();
 
         // Callback is captured and invoked with stubbed notes
         verify(mNotesRepository).getNotes(mLoadNotesCallbackCaptor.capture());
         mLoadNotesCallbackCaptor.getValue().onNotesLoaded(NOTES);
 
         // Then progress indicator is hidden and notes are shown in UI
-        verify(mNotesView).setProgressIndicator(false);
-        verify(mNotesView).showNotes(NOTES);
+        assertThat(viewModel.getLoading().get()).isEqualTo(false);
+        assertThat(model.getNotes()).isEqualTo(NOTES);
     }
 
     @Test
     public void clickOnFab_ShowsAddsNoteUi() {
         // When adding a new note
-        mNotesPresenter.addNewNote();
+        viewModel.addNewNote();
 
         // Then add note UI is shown
         verify(mNavigator).showAddNote(any(Mv2mView.class));
@@ -98,7 +97,7 @@ public class NotesPresenterTest {
         Note requestedNote = new Note("Details Requested", "For this note");
 
         // When open note details is requested
-        mNotesPresenter.openNoteDetails(requestedNote);
+        viewModel.openNoteDetails(requestedNote);
 
         // Then note detail UI is shown
         verify(mNavigator).showNoteDetailUi(any(Mv2mView.class), any(String.class));

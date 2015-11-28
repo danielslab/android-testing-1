@@ -2,6 +2,7 @@ package com.example.android.testing.notes.util;
 
 import android.databinding.BindingAdapter;
 import android.databinding.BindingConversion;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
@@ -35,6 +36,35 @@ public class DataBindingConverters {
 //            view.setText(newValue);
 //        }
 //    }
+
+    @BindingAdapter({"app:onClick"})
+    public static void bindOnClick(View view, final Runnable listener) {
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                listener.run();
+            }
+        });
+    }
+
+    @BindingAdapter({"app:onRefresh"})
+    public static void bindOnRefresh(final SwipeRefreshLayout srl, final Runnable listener) {
+        srl.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override public void onRefresh() {
+                listener.run();
+            }
+        });
+    }
+
+    @BindingAdapter({"app:refreshing"})
+    public static void bindRefreshing(final SwipeRefreshLayout srl, final boolean active) {
+        // Make sure setRefreshing() is called after the layout is done with everything else.
+        srl.post(new Runnable() {
+            @Override
+            public void run() {
+                srl.setRefreshing(active);
+            }
+        });
+    }
 
     @BindingAdapter({"app:visibleOrGone"})
     public static void bindVisibleOrGone(View view, boolean b) {

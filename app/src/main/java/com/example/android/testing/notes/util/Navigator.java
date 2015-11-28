@@ -7,7 +7,7 @@ import android.provider.MediaStore;
 
 import com.example.android.testing.notes.addnote.AddNoteActivity;
 import com.example.android.testing.notes.notedetail.NoteDetailActivity;
-import com.example.android.testing.notes.notes.NotesFragment;
+import com.example.android.testing.notes.notes.NotesViewModel;
 
 import it.cosenonjaviste.mv2m.Mv2mView;
 
@@ -37,7 +37,7 @@ public class Navigator {
 
     public void showAddNote(Mv2mView view) {
         Intent intent = new Intent(view.getActivity(), AddNoteActivity.class);
-        view.getActivity().startActivityForResult(intent, NotesFragment.REQUEST_ADD_NOTE);
+        view.startActivityForResult(intent, NotesViewModel.REQUEST_ADD_NOTE);
     }
 
     public void showNoteDetailUi(Mv2mView view, String noteId) {
