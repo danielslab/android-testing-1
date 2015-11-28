@@ -16,16 +16,10 @@
 
 package com.example.android.testing.notes.addnote;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -34,8 +28,6 @@ import com.example.android.testing.notes.R;
 import com.example.android.testing.notes.databinding.FragmentAddnoteBinding;
 import com.example.android.testing.notes.util.Navigator;
 import com.example.android.testing.notes.util.SnackbarMessageManager;
-
-import java.io.IOException;
 
 import it.cosenonjaviste.mv2m.ViewModelFragment;
 
@@ -79,40 +71,6 @@ public class AddNoteFragment extends ViewModelFragment<AddNoteViewModel> {
         binding = FragmentAddnoteBinding.inflate(inflater, container, false);
         binding.setViewModel(viewModel);
 
-        setHasOptionsMenu(true);
         return binding.getRoot();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.take_picture:
-                try {
-                    viewModel.takePicture();
-                } catch (IOException ioe) {
-                    if (getView() != null) {
-                        Snackbar.make(getView(), getString(R.string.take_picture_error),
-                                Snackbar.LENGTH_LONG).show();
-                    }
-                }
-                return true;
-        }
-        return false;
-    }
-
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.fragment_addnote_options_menu_actions, menu);
-        super.onCreateOptionsMenu(menu, inflater);
-    }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        // If an image is received, display it on the ImageView.
-        if (AddNoteViewModel.REQUEST_CODE_IMAGE_CAPTURE == requestCode && Activity.RESULT_OK == resultCode) {
-            viewModel.imageAvailable();
-        } else {
-            viewModel.imageCaptureFailed();
-        }
     }
 }

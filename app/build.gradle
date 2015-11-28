@@ -55,8 +55,8 @@ android {
  all versions in a single place. This improves readability and helps managing project complexity.
  */
 dependencies {
-    compile 'com.github.fabioCollini.mv2m:mv2mrx:-SNAPSHOT'
-    compile 'com.github.fabioCollini.mv2m:mv2mrecycler:-SNAPSHOT'
+    compile 'com.github.fabioCollini.mv2m:mv2mrx:35bc164eca'
+    compile 'com.github.fabioCollini.mv2m:mv2mrecycler:35bc164eca'
     // App's dependencies, including test
     compile "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
     compile "com.android.support:cardview-v7:$rootProject.supportLibraryVersion"

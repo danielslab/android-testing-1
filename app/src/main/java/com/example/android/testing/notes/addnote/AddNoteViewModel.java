@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import it.cosenonjaviste.mv2m.ActivityResult;
 import it.cosenonjaviste.mv2m.ViewModel;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -108,4 +109,27 @@ public class AddNoteViewModel extends ViewModel<Void, AddNoteModel> {
         mSnackbarMessageManager.showMessage(view, R.string.cannot_connect_to_camera_message);
     }
 
+    @Override public int getOptionMenuId() {
+        return R.menu.fragment_addnote_options_menu_actions;
+    }
+
+    @Override public boolean onOptionsItemSelected(int itemId) {
+        if (itemId == R.id.take_picture) {
+            try {
+                takePicture();
+            } catch (IOException ioe) {
+                mSnackbarMessageManager.showMessage(view, R.string.take_picture_error);
+            }
+            return true;
+        }
+        return super.onOptionsItemSelected(itemId);
+    }
+
+    @Override public void onResult(int requestCode, ActivityResult activityResult) {
+        if (REQUEST_CODE_IMAGE_CAPTURE == requestCode && activityResult.isResultOk()) {
+            imageAvailable();
+        } else {
+            imageCaptureFailed();
+        }
+    }
 }
