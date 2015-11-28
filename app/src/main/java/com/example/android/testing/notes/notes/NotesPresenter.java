@@ -16,13 +16,16 @@
 
 package com.example.android.testing.notes.notes;
 
+import android.support.annotation.NonNull;
+
 import com.example.android.testing.notes.data.Note;
 import com.example.android.testing.notes.data.NotesRepository;
 import com.example.android.testing.notes.util.EspressoIdlingResource;
-
-import android.support.annotation.NonNull;
+import com.example.android.testing.notes.util.Navigator;
 
 import java.util.List;
+
+import it.cosenonjaviste.mv2m.Mv2mView;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -35,9 +38,13 @@ public class NotesPresenter implements NotesContract.UserActionsListener {
 
     private final NotesRepository mNotesRepository;
     private final NotesContract.View mNotesView;
+    private final Navigator mNavigator;
+
+    private Mv2mView view;
 
     public NotesPresenter(
-            @NonNull NotesRepository notesRepository, @NonNull NotesContract.View notesView) {
+            @NonNull NotesRepository notesRepository, @NonNull NotesContract.View notesView, @NonNull Navigator navigator) {
+        this.mNavigator = checkNotNull(navigator, "navigator cannot be null");
         mNotesRepository = checkNotNull(notesRepository, "notesRepository cannot be null");
         mNotesView = checkNotNull(notesView, "notesView cannot be null!");
     }
@@ -65,13 +72,13 @@ public class NotesPresenter implements NotesContract.UserActionsListener {
 
     @Override
     public void addNewNote() {
-        mNotesView.showAddNote();
+        mNavigator.showAddNote(view);
     }
 
     @Override
     public void openNoteDetails(@NonNull Note requestedNote) {
         checkNotNull(requestedNote, "requestedNote cannot be null!");
-        mNotesView.showNoteDetailUi(requestedNote.getId());
+        mNavigator.showNoteDetailUi(view, requestedNote.getId());
     }
 
 }

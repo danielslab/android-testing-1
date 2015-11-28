@@ -16,21 +16,24 @@
 
 package com.example.android.testing.notes.notes;
 
-import com.google.common.collect.Lists;
-
 import com.example.android.testing.notes.data.Note;
 import com.example.android.testing.notes.data.NotesRepository;
 import com.example.android.testing.notes.data.NotesRepository.LoadNotesCallback;
+import com.example.android.testing.notes.util.Navigator;
+import com.google.common.collect.Lists;
 
-import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import it.cosenonjaviste.mv2m.Mv2mView;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
@@ -38,6 +41,7 @@ import static org.mockito.Mockito.verify;
 /**
  * Unit tests for the implementation of {@link NotesPresenter}
  */
+@RunWith(MockitoJUnitRunner.class)
 public class NotesPresenterTest {
 
     private static List<Note> NOTES = Lists.newArrayList(new Note("Title1", "Description1"),
@@ -51,6 +55,9 @@ public class NotesPresenterTest {
     @Mock
     private NotesContract.View mNotesView;
 
+    @Mock
+    private Navigator mNavigator;
+
     /**
      * {@link ArgumentCaptor} is a powerful Mockito API to capture argument values and use them to
      * perform further actions or assertions on them.
@@ -58,17 +65,8 @@ public class NotesPresenterTest {
     @Captor
     private ArgumentCaptor<LoadNotesCallback> mLoadNotesCallbackCaptor;
 
+    @InjectMocks
     private NotesPresenter mNotesPresenter;
-
-    @Before
-    public void setupNotesPresenter() {
-        // Mockito has a very convenient way to inject mocks by using the @Mock annotation. To
-        // inject the mocks in the test the initMocks method needs to be called.
-        MockitoAnnotations.initMocks(this);
-
-        // Get a reference to the class under test
-        mNotesPresenter = new NotesPresenter(mNotesRepository, mNotesView);
-    }
 
     @Test
     public void loadNotesFromRepositoryAndLoadIntoView() {
@@ -91,7 +89,7 @@ public class NotesPresenterTest {
         mNotesPresenter.addNewNote();
 
         // Then add note UI is shown
-        verify(mNotesView).showAddNote();
+        verify(mNavigator).showAddNote(any(Mv2mView.class));
     }
 
     @Test
@@ -103,6 +101,6 @@ public class NotesPresenterTest {
         mNotesPresenter.openNoteDetails(requestedNote);
 
         // Then note detail UI is shown
-        verify(mNotesView).showNoteDetailUi(any(String.class));
+        verify(mNavigator).showNoteDetailUi(any(Mv2mView.class), any(String.class));
     }
 }

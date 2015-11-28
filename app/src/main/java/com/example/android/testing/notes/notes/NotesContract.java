@@ -32,10 +32,6 @@ public interface NotesContract {
         void setProgressIndicator(boolean active);
 
         void showNotes(List<Note> notes);
-
-        void showAddNote();
-
-        void showNoteDetailUi(String noteId);
     }
 
     interface UserActionsListener {

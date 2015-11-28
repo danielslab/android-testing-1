@@ -5,6 +5,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.provider.MediaStore;
 
+import com.example.android.testing.notes.addnote.AddNoteActivity;
+import com.example.android.testing.notes.notedetail.NoteDetailActivity;
+import com.example.android.testing.notes.notes.NotesFragment;
+
 import it.cosenonjaviste.mv2m.Mv2mView;
 
 public class Navigator {
@@ -29,5 +33,18 @@ public class Navigator {
     public void finish(Mv2mView view, int resultCode) {
         view.getActivity().setResult(resultCode);
         view.getActivity().finish();
+    }
+
+    public void showAddNote(Mv2mView view) {
+        Intent intent = new Intent(view.getActivity(), AddNoteActivity.class);
+        view.getActivity().startActivityForResult(intent, NotesFragment.REQUEST_ADD_NOTE);
+    }
+
+    public void showNoteDetailUi(Mv2mView view, String noteId) {
+        // in it's own Activity, since it makes more sense that way and it gives us the flexibility
+        // to show some Intent stubbing.
+        Intent intent = new Intent(view.getActivity(), NoteDetailActivity.class);
+        intent.putExtra(NoteDetailActivity.EXTRA_NOTE_ID, noteId);
+        view.getActivity().startActivity(intent);
     }
 }

@@ -33,9 +33,8 @@ import android.view.ViewGroup;
 
 import com.example.android.testing.notes.Injection;
 import com.example.android.testing.notes.R;
-import com.example.android.testing.notes.addnote.AddNoteActivity;
 import com.example.android.testing.notes.data.Note;
-import com.example.android.testing.notes.notedetail.NoteDetailActivity;
+import com.example.android.testing.notes.util.Navigator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +44,7 @@ import java.util.List;
  */
 public class NotesFragment extends Fragment implements NotesContract.View {
 
-    private static final int REQUEST_ADD_NOTE = 1;
+    public static final int REQUEST_ADD_NOTE = 1;
 
     private NotesContract.UserActionsListener mActionsListener;
 
@@ -77,7 +76,7 @@ public class NotesFragment extends Fragment implements NotesContract.View {
 
         setRetainInstance(true);
 
-        mActionsListener = new NotesPresenter(Injection.provideNotesRepository(), this);
+        mActionsListener = new NotesPresenter(Injection.provideNotesRepository(), this, new Navigator(getActivity().getApplication()));
 
     }
 
@@ -163,22 +162,6 @@ public class NotesFragment extends Fragment implements NotesContract.View {
     public void showNotes(List<Note> notes) {
         mListAdapter.replaceData(notes);
     }
-
-    @Override
-    public void showAddNote() {
-        Intent intent = new Intent(getContext(),AddNoteActivity.class);
-        startActivityForResult(intent, REQUEST_ADD_NOTE);
-    }
-
-    @Override
-    public void showNoteDetailUi(String noteId) {
-        // in it's own Activity, since it makes more sense that way and it gives us the flexibility
-        // to show some Intent stubbing.
-        Intent intent = new Intent(getContext(), NoteDetailActivity.class);
-        intent.putExtra(NoteDetailActivity.EXTRA_NOTE_ID, noteId);
-        startActivity(intent);
-    }
-
 
     public interface NoteItemListener {
 
