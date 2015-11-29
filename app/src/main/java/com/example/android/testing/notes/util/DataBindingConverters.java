@@ -82,6 +82,7 @@ public class DataBindingConverters {
     @BindingAdapter({"app:imageUrl"})
     public static void loadImage(ImageView view, String url) {
         if (!TextUtils.isEmpty(url)) {
+            view.setVisibility(View.VISIBLE);
             Glide.with(view.getContext())
                     .load(url)
                     .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -89,6 +90,7 @@ public class DataBindingConverters {
                     .dontAnimate()
                     .into(view);
         } else {
+            view.setVisibility(View.INVISIBLE);
             view.setImageDrawable(null);
         }
     }

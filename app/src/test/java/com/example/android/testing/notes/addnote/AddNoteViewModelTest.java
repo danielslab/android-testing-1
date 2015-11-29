@@ -33,7 +33,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.io.IOException;
 
-import it.cosenonjaviste.mv2m.Mv2mView;
+import it.cosenonjaviste.mv2m.ActivityHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -75,7 +75,7 @@ public class AddNoteViewModelTest {
 
         // Then a note is,
         verify(mNotesRepository).saveNote(any(Note.class)); // saved to the model
-        verify(navigator).finish(any(Mv2mView.class), eq(Activity.RESULT_OK)); // shown in the UI
+        verify(navigator).finish(any(ActivityHolder.class), eq(Activity.RESULT_OK)); // shown in the UI
     }
 
     @Test
@@ -86,7 +86,7 @@ public class AddNoteViewModelTest {
         viewModel.saveNote();
 
         // Then an empty not error is shown in the UI
-        verify(messageManager).showMessage(any(Mv2mView.class), eq(R.string.empty_note_message));
+        verify(messageManager).showMessage(any(ActivityHolder.class), eq(R.string.empty_note_message));
     }
 
     @Test
@@ -99,7 +99,7 @@ public class AddNoteViewModelTest {
         // Then an image file is created snd camera is opened
         verify(mImageFile).create(anyString(), anyString());
         verify(mImageFile).getPath();
-        verify(navigator).openCamera(anyString(), any(Mv2mView.class), eq(AddNoteViewModel.REQUEST_CODE_IMAGE_CAPTURE));
+        verify(navigator).openCamera(anyString(), any(ActivityHolder.class), eq(AddNoteViewModel.REQUEST_CODE_IMAGE_CAPTURE));
     }
 
     @Test
@@ -127,7 +127,7 @@ public class AddNoteViewModelTest {
         viewModel.imageAvailable();
 
         // Then an error is shown in the UI and the image file is deleted
-        verify(messageManager).showMessage(any(Mv2mView.class), eq(R.string.cannot_connect_to_camera_message));
+        verify(messageManager).showMessage(any(ActivityHolder.class), eq(R.string.cannot_connect_to_camera_message));
         verify(mImageFile).delete();
     }
 
@@ -137,7 +137,7 @@ public class AddNoteViewModelTest {
         viewModel.imageCaptureFailed();
 
         // Then an error is shown in the UI and the image file is deleted
-        verify(messageManager).showMessage(any(Mv2mView.class), eq(R.string.cannot_connect_to_camera_message));
+        verify(messageManager).showMessage(any(ActivityHolder.class), eq(R.string.cannot_connect_to_camera_message));
         verify(mImageFile).delete();
     }
 

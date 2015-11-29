@@ -9,7 +9,7 @@ import com.example.android.testing.notes.addnote.AddNoteActivity;
 import com.example.android.testing.notes.notedetail.NoteDetailActivity;
 import com.example.android.testing.notes.notes.NotesViewModel;
 
-import it.cosenonjaviste.mv2m.Mv2mView;
+import it.cosenonjaviste.mv2m.ActivityHolder;
 
 public class Navigator {
 
@@ -24,27 +24,27 @@ public class Navigator {
         return takePictureIntent.resolveActivity(application.getPackageManager()) != null;
     }
 
-    public void openCamera(String saveTo, Mv2mView view, int requestCode) {
+    public void openCamera(String saveTo, ActivityHolder activityHolder, int requestCode) {
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.parse(saveTo));
-        view.startActivityForResult(takePictureIntent, requestCode);
+        activityHolder.startActivityForResult(takePictureIntent, requestCode);
     }
 
-    public void finish(Mv2mView view, int resultCode) {
-        view.getActivity().setResult(resultCode);
-        view.getActivity().finish();
+    public void finish(ActivityHolder activityHolder, int resultCode) {
+        activityHolder.getActivity().setResult(resultCode);
+        activityHolder.getActivity().finish();
     }
 
-    public void showAddNote(Mv2mView view) {
-        Intent intent = new Intent(view.getActivity(), AddNoteActivity.class);
-        view.startActivityForResult(intent, NotesViewModel.REQUEST_ADD_NOTE);
+    public void showAddNote(ActivityHolder activityHolder) {
+        Intent intent = new Intent(activityHolder.getActivity(), AddNoteActivity.class);
+        activityHolder.startActivityForResult(intent, NotesViewModel.REQUEST_ADD_NOTE);
     }
 
-    public void showNoteDetailUi(Mv2mView view, String noteId) {
+    public void showNoteDetailUi(ActivityHolder activityHolder, String noteId) {
         // in it's own Activity, since it makes more sense that way and it gives us the flexibility
         // to show some Intent stubbing.
-        Intent intent = new Intent(view.getActivity(), NoteDetailActivity.class);
+        Intent intent = new Intent(activityHolder.getActivity(), NoteDetailActivity.class);
         intent.putExtra(NoteDetailActivity.EXTRA_NOTE_ID, noteId);
-        view.getActivity().startActivity(intent);
+        activityHolder.startActivity(intent);
     }
 }

@@ -73,10 +73,10 @@ public class AddNoteViewModel extends ViewModel<Void, AddNoteModel> {
         }
         Note newNote = new Note(model.getTitle().get(), model.getDescription().get(), imageUrl);
         if (newNote.isEmpty()) {
-            mSnackbarMessageManager.showMessage(view, R.string.empty_note_message);
+            mSnackbarMessageManager.showMessage(activityHolder, R.string.empty_note_message);
         } else {
             mNotesRepository.saveNote(newNote);
-            mNavigator.finish(view, Activity.RESULT_OK);
+            mNavigator.finish(activityHolder, Activity.RESULT_OK);
         }
     }
 
@@ -86,9 +86,9 @@ public class AddNoteViewModel extends ViewModel<Void, AddNoteModel> {
         mImageFile.create(imageFileName, ".jpg");
 
         if (mNavigator.isCameraInstalled()) {
-            mNavigator.openCamera(mImageFile.getPath(), view, REQUEST_CODE_IMAGE_CAPTURE);
+            mNavigator.openCamera(mImageFile.getPath(), activityHolder, REQUEST_CODE_IMAGE_CAPTURE);
         } else {
-            mSnackbarMessageManager.showMessage(view, R.string.cannot_connect_to_camera_message);
+            mSnackbarMessageManager.showMessage(activityHolder, R.string.cannot_connect_to_camera_message);
         }
     }
 
@@ -106,7 +106,7 @@ public class AddNoteViewModel extends ViewModel<Void, AddNoteModel> {
 
     private void captureFailed() {
         mImageFile.delete();
-        mSnackbarMessageManager.showMessage(view, R.string.cannot_connect_to_camera_message);
+        mSnackbarMessageManager.showMessage(activityHolder, R.string.cannot_connect_to_camera_message);
     }
 
     @Override public int getOptionMenuId() {
@@ -118,7 +118,7 @@ public class AddNoteViewModel extends ViewModel<Void, AddNoteModel> {
             try {
                 takePicture();
             } catch (IOException ioe) {
-                mSnackbarMessageManager.showMessage(view, R.string.take_picture_error);
+                mSnackbarMessageManager.showMessage(activityHolder, R.string.take_picture_error);
             }
             return true;
         }

@@ -86,17 +86,17 @@ public class NotesViewModel extends ViewModel<Void, NotesModel> {
     }
 
     public void addNewNote() {
-        mNavigator.showAddNote(view);
+        mNavigator.showAddNote(activityHolder);
     }
 
     public void openNoteDetails(@NonNull Note requestedNote) {
         checkNotNull(requestedNote, "requestedNote cannot be null!");
-        mNavigator.showNoteDetailUi(view, requestedNote.getId());
+        mNavigator.showNoteDetailUi(activityHolder, requestedNote.getId());
     }
 
     @Override public void onResult(int requestCode, ActivityResult activityResult) {
         if (REQUEST_ADD_NOTE == requestCode && activityResult.isResultOk()) {
-            mMessageManager.showMessage(view, R.string.successfully_saved_note_message);
+            mMessageManager.showMessage(activityHolder, R.string.successfully_saved_note_message);
         }
     }
 

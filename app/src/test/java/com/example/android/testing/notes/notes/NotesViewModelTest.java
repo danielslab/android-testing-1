@@ -33,7 +33,7 @@ import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
 
-import it.cosenonjaviste.mv2m.Mv2mView;
+import it.cosenonjaviste.mv2m.ActivityHolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -88,7 +88,7 @@ public class NotesViewModelTest {
         viewModel.addNewNote();
 
         // Then add note UI is shown
-        verify(mNavigator).showAddNote(any(Mv2mView.class));
+        verify(mNavigator).showAddNote(any(ActivityHolder.class));
     }
 
     @Test
@@ -100,6 +100,6 @@ public class NotesViewModelTest {
         viewModel.openNoteDetails(requestedNote);
 
         // Then note detail UI is shown
-        verify(mNavigator).showNoteDetailUi(any(Mv2mView.class), any(String.class));
+        verify(mNavigator).showNoteDetailUi(any(ActivityHolder.class), any(String.class));
     }
 }
