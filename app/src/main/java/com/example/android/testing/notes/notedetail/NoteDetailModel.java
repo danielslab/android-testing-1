@@ -4,7 +4,7 @@ import android.databinding.ObservableBoolean;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.example.android.testing.notes.util.ObservableString;
+import it.cosenonjaviste.twowaydatabinding.ObservableString;
 
 public class NoteDetailModel implements Parcelable {
 
